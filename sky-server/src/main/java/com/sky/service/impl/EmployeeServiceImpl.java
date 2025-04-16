@@ -9,6 +9,7 @@ import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.service.EmployeeService;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -40,10 +41,18 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //密码比对
         // TODO 后期需要进行md5加密，然后再进行比对
-        if (!password.equals(employee.getPassword())) {
-            //密码错误
+//        if (!password.equals(employee.getPassword())) {
+//            //密码错误
+//            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+//        }
+        if(!BCrypt.checkpw(password, employee.getPassword())){
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
+//        else {
+//            System.out.println("密码正确" +"输入为"+ password);
+//            System.out.println("密码正确" + employee.getPassword());
+//        }
+
 
         if (employee.getStatus() == StatusConstant.DISABLE) {
             //账号被锁定
