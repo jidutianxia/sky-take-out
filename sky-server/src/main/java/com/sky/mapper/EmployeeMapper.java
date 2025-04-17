@@ -1,10 +1,15 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.HashMap;
 
 @Mapper
 public interface EmployeeMapper {
@@ -28,4 +33,6 @@ public interface EmployeeMapper {
 
     @Select("select * from employee where id = #{id}")
     Employee byIdSelect(String id);
+
+    Page<Employee> pageSelect(EmployeePageQueryDTO employeePageQueryDTO);
 }

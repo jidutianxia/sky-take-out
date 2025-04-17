@@ -1,15 +1,19 @@
 package com.sky.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import org.mindrot.jbcrypt.BCrypt;
@@ -19,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -53,7 +59,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 //        }
 
         // 进行BCrypt加密密码
-        if(!BCrypt.checkpw(password, employee.getPassword())){
+        if (!BCrypt.checkpw(password, employee.getPassword())) {
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
 //        else {
@@ -73,6 +79,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * 新增员工
+     *
      * @param employeeDTO
      */
     @Override
@@ -80,7 +87,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = new Employee();
 
         //对象属性拷贝
-        BeanUtils.copyProperties(employeeDTO,employee);
+        BeanUtils.copyProperties(employeeDTO, employee);
 
         //设置账号的状态，默认正常状态1表示正常 0表示锁定
         employee.setStatus(StatusConstant.ENABLE);
@@ -89,7 +96,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         String originalPassword = "123456";
         String hashedPassword = BCrypt.hashpw(originalPassword, BCrypt.gensalt(12));
         //设置密码
-        employee.setPassword("hashedPassword");
+        employee.setPassword(hashedPassword);
 
         //设置当前记录的创建时间和修改时间
         employee.setCreateTime(LocalDateTime.now());
@@ -107,5 +114,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee byIdSelect(String id) {
         return employeeMapper.byIdSelect(id);
+    }
+
+    @Override
+    public PageResult pageSelect(EmployeePageQueryDTO employeePageQueryDTO) {
+        int page = employeePageQueryDTO.getPage();
+        int pageSize = employeePageQueryDTO.getPageSize();
+
+        PageHelper.startPage(page, pageSize);
+        Page<Employee> pageEmp = employeeMapper.pageSelect(employeePageQueryDTO);
+        long total = pageEmp.getTotal();
+        List<Employee> records = pageEmp.getResult();
+
+        return new PageResult(total, records);
     }
 }
