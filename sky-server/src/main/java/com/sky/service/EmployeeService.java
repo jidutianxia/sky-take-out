@@ -1,5 +1,6 @@
 package com.sky.service;
 
+import com.sky.dto.EmpEditPasswordDTO;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
@@ -32,4 +33,6 @@ public interface EmployeeService {
     void updateStatus(Integer status, Long id);
 
     void update(EmployeeDTO employeeDTO);
+
+    void editPassword(EmpEditPasswordDTO empEditPasswordDTO);
 }

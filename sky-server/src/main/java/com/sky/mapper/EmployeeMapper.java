@@ -40,4 +40,5 @@ public interface EmployeeMapper {
     void updateStatus(String status, String id);
 
     void update(Employee employee);
+
 }

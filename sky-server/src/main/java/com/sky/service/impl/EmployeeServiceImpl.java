@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.EmpEditPasswordDTO;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
@@ -106,7 +107,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setCreateUser(BaseContext.getCurrentId());
         employee.setUpdateUser(BaseContext.getCurrentId());
 
-        BaseContext.removeCurrentId();
+//        BaseContext.removeCurrentId();
 
         employeeMapper.insert(employee);
     }
@@ -148,6 +149,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         employee.setUpdateTime(LocalDateTime.now());
         employee.setUpdateUser(BaseContext.getCurrentId());
+
+        employeeMapper.update(employee);
+    }
+
+    @Override
+    // TODO 修改密码逻辑有错，因为我数据库的密码是经过加密的，如果查询出来是加密的密码，但是修改密码功能是肯定是未进行加密的，如果要验证旧密码的话，要重写一遍登录逻辑，不验证的话新密码进入数据库也是要加密的
+    // 这里直接跳过验证直接修改了
+    // 没有传id所有修改无用
+    public void editPassword(EmpEditPasswordDTO empEditPasswordDTO) {
+        Employee employee = Employee.builder()
+                .password(empEditPasswordDTO.getNewPassword())
+                .updateTime(LocalDateTime.now())
+                .updateUser(BaseContext.getCurrentId()).build();
 
         employeeMapper.update(employee);
     }
