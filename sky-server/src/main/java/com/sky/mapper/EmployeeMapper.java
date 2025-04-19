@@ -8,6 +8,7 @@ import com.sky.result.Result;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.HashMap;
 
@@ -35,4 +36,8 @@ public interface EmployeeMapper {
     Employee byIdSelect(String id);
 
     Page<Employee> pageSelect(EmployeePageQueryDTO employeePageQueryDTO);
+
+    void updateStatus(String status, String id);
+
+    void update(Employee employee);
 }
