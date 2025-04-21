@@ -38,10 +38,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void addCategory(CategoryDTO categoryDTO) {
         Category category = Category.builder()
-                .createTime(LocalDateTime.now())
-                .updateTime(LocalDateTime.now())
-                .createUser(BaseContext.getCurrentId())
-                .updateUser(BaseContext.getCurrentId())
+//                .createTime(LocalDateTime.now())
+//                .updateTime(LocalDateTime.now())
+//                .createUser(BaseContext.getCurrentId())
+//                .updateUser(BaseContext.getCurrentId())
                 .build();
         category.setStatus(StatusConstant.ENABLE);
 
@@ -83,8 +83,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void updateCategory(CategoryDTO categoryDTO) {
         Category category = Category.builder()
-                .updateTime(LocalDateTime.now())
-                .updateUser(BaseContext.getCurrentId())
+//                .updateTime(LocalDateTime.now())
+//                .updateUser(BaseContext.getCurrentId())
                 .build();
 
         BeanUtils.copyProperties(categoryDTO, category);
@@ -94,8 +94,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void onOrOff(String status, String id) {
         Category category = Category.builder()
-                .updateTime(LocalDateTime.now())
-                .updateUser(BaseContext.getCurrentId())
+//                .updateTime(LocalDateTime.now())
+//                .updateUser(BaseContext.getCurrentId())
                 .status(Integer.valueOf(status))
                 .id(Long.valueOf(id))
                 .build();
