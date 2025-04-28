@@ -1,0 +1,26 @@
+package com.sky.config;
+
+import com.sky.properties.AliOssProperties;
+import com.sky.utils.AliOssUtil;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+
+
+@Configuration
+@Slf4j
+public class OssConfiguration {
+    @Bean
+    @ConditionalOnMissingBean
+    public AliOssUtil ali0ssUtil(AliOssProperties aliOssProperties) {
+        log.info("开始创建阿里云文件上传工具类对象:{}", aliOssProperties);
+        return new AliOssUtil(aliOssProperties.getEndpoint(),
+                aliOssProperties.getAccessKeyId(),
+                aliOssProperties.getAccessKeySecret(),
+                aliOssProperties.getBucketName());
+    }
+}
