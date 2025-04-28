@@ -32,4 +32,23 @@
         </where>
         order by d.create_time desc
     </select>
+    <select id="selectByIds" resultType="com.sky.entity.Dish">
+        SELECT * FROM dish WHERE id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
+    <delete id="deleteByIds">
+        DELETE FROM dish WHERE id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+    <select id="selectById" resultType="com.sky.entity.Dish">
+        SELECT * FROM dish WHERE id = #{id}
+    </select>
 </mapper>
