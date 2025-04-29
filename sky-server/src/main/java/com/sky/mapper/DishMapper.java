@@ -27,4 +27,7 @@ public interface DishMapper {
     List<Dish> selectByIds(List<Long> ids);
 
     Dish selectById(Long id);
+
+    @AutoFill(value = OperationType.UPDATE)
+    void updateDish(Dish dish);
 }
