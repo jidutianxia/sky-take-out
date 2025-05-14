@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Api("AI")
 @Slf4j
 public class ChatController {
-    @Autowired
-    QwenChatModel qwenChatModel;
+//    @Autowired
+//    QwenChatModel qwenChatModel;
 
 //    @Qualifier("openAiChatModel")
 //    @Autowired
@@ -29,13 +29,13 @@ public class ChatController {
 //    @Autowired
 //    ChatLanguageModel ollamaChatModel;
 
-    @ApiOperation("千问")
-    @RequestMapping(value = "/qwen",produces = "application/json;charset=UTF-8")
-    public String qwenChatAI(@RequestParam(defaultValue = "你是谁") String message){
-        log.info("用户：{}",message);
-        String chat = qwenChatModel.chat(message);
-        return chat;
-    }
+//    @ApiOperation("千问")
+//    @RequestMapping(value = "/qwen",produces = "application/json;charset=UTF-8")
+//    public String qwenChatAI(@RequestParam(defaultValue = "你是谁") String message){
+//        log.info("用户：{}",message);
+//        String chat = qwenChatModel.chat(message);
+//        return chat;
+//    }
 
 //    @ApiOperation("deepseek")
 //    @RequestMapping(value = "/deepseek", produces = "application/json;charset=UTF-8")
