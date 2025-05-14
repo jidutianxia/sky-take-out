@@ -129,4 +129,10 @@ public class DishServiceImpl implements DishService {
         }
     }
 
+
+    @Override
+    public List<Dish> byCategoryId(String categoryId) {
+        return dishMapper.byCategoryId(categoryId);
+    }
+
 }

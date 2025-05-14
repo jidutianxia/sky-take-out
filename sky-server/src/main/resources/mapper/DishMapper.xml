@@ -86,4 +86,13 @@
         where id = #{id}
     </update>
 
+    <select id="byCategoryId" resultType="com.sky.entity.Dish">
+        select * from dish
+        <where>
+            <if test="id !=null">
+                category_id = #{categoryId}
+            </if>
+        </where>
+    </select>
+
 </mapper>

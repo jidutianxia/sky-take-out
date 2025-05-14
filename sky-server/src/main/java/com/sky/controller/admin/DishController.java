@@ -49,7 +49,7 @@ public class DishController {
 
     @GetMapping("/{id}")
     @ApiOperation("根据id查询菜品")
-    public Result selectById(@PathVariable Long id){
+    public Result selectById(@PathVariable Long id) {
         log.info("根据id查询菜品：{}", id);
         DishVO dishVO = dishService.selectById(id);
         return Result.success(dishVO);
@@ -58,9 +58,17 @@ public class DishController {
 
     @PutMapping
     @ApiOperation("修改菜品")
-    public Result update(@RequestBody DishDTO dishDTO){
+    public Result update(@RequestBody DishDTO dishDTO) {
         log.info("修改菜品：{}", dishDTO);
         dishService.updateDish(dishDTO);
         return Result.success();
+    }
+
+    @GetMapping("/list")
+    @ApiOperation("根据分类id查询菜品")
+    public Result<List<Dish>> byCategoryId(String categoryId) {
+        log.info("根据分类id查询菜品：{}", categoryId);
+        List<Dish> dish = dishService.byCategoryId(categoryId);
+        return Result.success(dish);
     }
 }

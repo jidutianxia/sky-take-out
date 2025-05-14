@@ -18,4 +18,6 @@ public interface DishService {
     void updateDish(DishDTO dishDTO);
 
     DishVO selectById(Long id);
+
+    List<Dish> byCategoryId(String categoryId);
 }
