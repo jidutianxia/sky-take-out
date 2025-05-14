@@ -9,6 +9,7 @@ import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.AccountLockedException;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
@@ -18,7 +19,6 @@ import com.sky.vo.SetmealVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -73,4 +73,36 @@ public class SetmealServiceImpl implements SetmealService {
         Page<SetmealVO> page = setmealMapper.pageQuery(setmealPageQueryDTO);
         return new PageResult(page.getTotal(), page.getResult());
     }
+
+    @Override
+    public void delete(List<Long> ids) {
+        ids.forEach(id ->{
+            Setmeal setmeal = setmealMapper.getById(id);
+            if(StatusConstant.ENABLE == setmeal.getStatus()){
+                //起售中的套餐不能删除
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+            }
+        });
+
+        ids.forEach(setmealId -> {
+            //删除套餐表中的数据
+            setmealMapper.deleteById(setmealId);
+            //删除套餐菜品关系表中的数据
+            setmealDishMapper.deleteBySetmealId(setmealId);
+        });
+    }
+
+    @Override
+    public SetmealVO getByIdWithDish(Long id) {
+        Setmeal setmeal = setmealMapper.getById(id);
+        List<SetmealDish> setmealDishes = setmealDishMapper.getBySetmealId(id);
+
+        SetmealVO setmealVO = new SetmealVO();
+        BeanUtils.copyProperties(setmeal, setmealVO);
+        setmealVO.setSetmealDishes(setmealDishes);
+
+        return setmealVO;
+    }
+
+
 }

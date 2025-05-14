@@ -9,4 +9,8 @@
                 (#{sd.setmealId},#{sd.dishId},#{sd.name},#{sd.price},#{sd.copies})
             </foreach>
     </insert>
+
+    <select id="getBySetmealId" resultType="com.sky.entity.SetmealDish">
+
+    </select>
 </mapper>
