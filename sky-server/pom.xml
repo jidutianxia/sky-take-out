@@ -143,60 +143,60 @@
         </dependency>
 
 <!--        添加LangChain4j 依赖-->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-open-ai</artifactId>
-            <version>1.0.0-beta3</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>dev.langchain4j</groupId>-->
+<!--            <artifactId>langchain4j-open-ai</artifactId>-->
+<!--            <version>1.0.0-beta3</version>-->
+<!--        </dependency>-->
 
-<!--open AI deepseek-->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j</artifactId>
-            <version>1.0.0-beta3</version>
-        </dependency>
+<!--&lt;!&ndash;open AI deepseek&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>dev.langchain4j</groupId>-->
+<!--            <artifactId>langchain4j</artifactId>-->
+<!--            <version>1.0.0-beta3</version>-->
+<!--        </dependency>-->
 
-<!--ollama-->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-ollama</artifactId>
-            <version>1.0.0-beta3</version>
-        </dependency>
+<!--&lt;!&ndash;ollama&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>dev.langchain4j</groupId>-->
+<!--            <artifactId>langchain4j-ollama</artifactId>-->
+<!--            <version>1.0.0-beta3</version>-->
+<!--        </dependency>-->
 
-<!--智普 AI-->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-community-zhipu-ai</artifactId>
-            <version>1.0.0-beta3</version>
-        </dependency>
+<!--&lt;!&ndash;智普 AI&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>dev.langchain4j</groupId>-->
+<!--            <artifactId>langchain4j-community-zhipu-ai</artifactId>-->
+<!--            <version>1.0.0-beta3</version>-->
+<!--        </dependency>-->
 
-<!--        ali-->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-community-dashscope</artifactId>
-            <version>1.0.0-beta3</version>
-        </dependency>
+<!--&lt;!&ndash;        ali&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>dev.langchain4j</groupId>-->
+<!--            <artifactId>langchain4j-community-dashscope</artifactId>-->
+<!--            <version>1.0.0-beta3</version>-->
+<!--        </dependency>-->
 
-<!--        spring langchain4j ali dashscope-->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-community-dashscope-spring-boot-starter</artifactId>
-            <version>1.0.0-beta3</version>
-        </dependency>
+<!--&lt;!&ndash;        spring langchain4j ali dashscope&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>dev.langchain4j</groupId>-->
+<!--            <artifactId>langchain4j-community-dashscope-spring-boot-starter</artifactId>-->
+<!--            <version>1.0.0-beta3</version>-->
+<!--        </dependency>-->
 
-<!-- open-ai deepseek    -->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
-            <version>1.0.0-beta3</version>
-        </dependency>
+<!--&lt;!&ndash; open-ai deepseek    &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>dev.langchain4j</groupId>-->
+<!--            <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>-->
+<!--            <version>1.0.0-beta3</version>-->
+<!--        </dependency>-->
 
-<!--0llama spring -->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-ollama-spring-boot-starter</artifactId>
-            <version>1.0.0-beta3</version>
-        </dependency>
+<!--&lt;!&ndash;0llama spring &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>dev.langchain4j</groupId>-->
+<!--            <artifactId>langchain4j-ollama-spring-boot-starter</artifactId>-->
+<!--            <version>1.0.0-beta3</version>-->
+<!--        </dependency>-->
 
     </dependencies>
 
