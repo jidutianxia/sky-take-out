@@ -6,10 +6,12 @@ import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.DeletionNotAllowedException;
+import com.sky.exception.SetmealEnableFailedException;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
@@ -45,21 +47,21 @@ public class SetmealServiceImpl implements SetmealService {
 
         String name = setmeal.getName();
         if (!setmealMapper.soleName(name)) {
-            if (setmealDTO.getSetmealDishes() != null){
+            if (setmealDTO.getSetmealDishes() != null) {
                 setmealMapper.newAdd(setmeal);
 
                 Long setmealId = setmeal.getId();
 
                 List<SetmealDish> setmealDTOList = setmealDTO.getSetmealDishes();
-                setmealDTOList.forEach(item ->{
+                setmealDTOList.forEach(item -> {
                     item.setSetmealId(setmealId);
                 });
 
                 setmealDishMapper.insertDish(setmealDTOList);
-            }else {
+            } else {
                 log.info("当前套餐关联菜品为空");
             }
-        }else {
+        } else {
             throw new AccountLockedException(MessageConstant.ALREADY_EXISTS);
         }
     }
@@ -76,9 +78,9 @@ public class SetmealServiceImpl implements SetmealService {
 
     @Override
     public void delete(List<Long> ids) {
-        ids.forEach(id ->{
+        ids.forEach(id -> {
             Setmeal setmeal = setmealMapper.getById(id);
-            if(StatusConstant.ENABLE == setmeal.getStatus()){
+            if (StatusConstant.ENABLE == setmeal.getStatus()) {
                 //起售中的套餐不能删除
                 throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
             }
@@ -104,5 +106,45 @@ public class SetmealServiceImpl implements SetmealService {
         return setmealVO;
     }
 
+    @Override
+    public void update(SetmealDTO setmealDTO) {
+        Setmeal setmeal = new Setmeal();
+        BeanUtils.copyProperties(setmealDTO, setmeal);
 
+        //1、修改套餐表，执行update
+        setmealMapper.update(setmeal);
+
+        //套餐id
+        Long setmealId = setmeal.getId();
+        //2、删除套餐和菜品的关联关系，操作setmeal_dish表，执行delete
+        setmealDishMapper.deleteBySetmealId(setmealId);
+
+        List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
+        setmealDishes.forEach(setmealDish -> {
+            setmealDish.setSetmealId(setmealId);
+        });
+
+        //3、重新插入套餐和菜品的关联关系，操作setmeal_dish表，执行insert
+        setmealDishMapper.insertDish(setmealDishes);
+    }
+
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        //起售套餐时，判断套餐内是否有停售菜品，有停售菜品提示"套餐内包含未启售菜品，无法启售"
+        if (status == StatusConstant.ENABLE) {
+            List<Dish> dishes = dishMapper.getBySetmealId(id);
+            if (dishes != null && dishes.size() > 0) {
+                dishes.forEach(dish -> {
+                    if (StatusConstant.DISABLE == dish.getStatus()) {
+                        throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+                    }
+                });
+            }
+        }
+        Setmeal setmeal = Setmeal.builder()
+                .id(id)
+                .status(status)
+                .build();
+        setmealMapper.update(setmeal);
+    }
 }

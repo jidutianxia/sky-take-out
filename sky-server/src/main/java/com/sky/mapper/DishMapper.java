@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
+import com.sky.entity.SetmealDish;
 import com.sky.enumeration.OperationType;
 import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -32,4 +33,6 @@ public interface DishMapper {
     void updateDish(Dish dish);
 
     List<Dish> byCategoryId(String categoryId);
+
+    List<Dish> getBySetmealId(Long id);
 }

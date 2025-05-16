@@ -3,14 +3,19 @@
 <mapper namespace="com.sky.mapper.SetmealDishMapper">
     <insert id="insertDish">
         insert into setmeal_dish
-            (setmeal_id, dish_id, name, price, copies)
-            value
-            <foreach collection="setmealDTOList" item="sd" separator=",">
-                (#{sd.setmealId},#{sd.dishId},#{sd.name},#{sd.price},#{sd.copies})
-            </foreach>
+        (setmeal_id, dish_id, name, price, copies)
+        value
+        <foreach collection="setmealDTOList" item="sd" separator=",">
+            (#{sd.setmealId},#{sd.dishId},#{sd.name},#{sd.price},#{sd.copies})
+        </foreach>
     </insert>
 
     <select id="getBySetmealId" resultType="com.sky.entity.SetmealDish">
-
+        select * from setmeal_dish
+        <where>
+            <if test="id !=null">
+                setmeal_id =#{id}
+            </if>
+        </where>
     </select>
 </mapper>

@@ -10,7 +10,6 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
-import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 @Mapper
@@ -38,4 +37,7 @@ public interface SetmealMapper {
 
     @Delete("delete from setmeal where id = #{id}")
     void deleteById(Long setmealId);
+
+    @AutoFill(OperationType.UPDATE)
+    void update(Setmeal setmealDTO);
 }
