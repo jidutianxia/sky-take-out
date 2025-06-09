@@ -11,6 +11,7 @@
                 #{rejectionReason}, #{cancelTime}, #{estimatedDeliveryTime}, #{deliveryStatus}, #{deliveryTime},
                 #{packAmount}, #{tablewareNumber}, #{tablewareStatus});
     </insert>
+
     <select id="getHistoryOrders" resultType="com.sky.entity.Orders">
         select * from orders
         <where>
@@ -35,5 +36,20 @@
         </where>
         order by order_time desc
     </select>
+
+
+    <update id="update">
+        update orders
+        <set>
+            status = #{status},
+            cancel_reason = #{cancelReason},
+            cancel_time = NOW(),
+        </set>
+        <where>
+            <if test="id != null and id != ''">
+                id = #{id}
+            </if>
+        </where>
+    </update>
 
 </mapper>

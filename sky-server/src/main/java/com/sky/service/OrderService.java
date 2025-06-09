@@ -12,4 +12,6 @@ public interface OrderService {
     PageResult getHistoryOrders(OrdersPageQueryDTO ordersPageQueryDTO);
 
     OrderVO getOrderDetail(String id);
+
+    void cancelOrder(String id);
 }
