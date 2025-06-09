@@ -2,11 +2,13 @@ package com.sky.controller.user;
 
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersSubmitDTO;
+import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrderVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -43,4 +45,12 @@ public class OrderController {
         return Result.success(pageResult);
     }
 
+    @GetMapping("/orderDetail/{id}")
+    @ApiOperation("查询订单详情")
+    public Result<OrderVO> getOrderDetail(@PathVariable String id){
+        log.info("查询订单详情，id为：{}", id);
+
+        OrderVO orderVO= orderService.getOrderDetail(id);
+        return Result.success(orderVO);
+    }
 }
