@@ -15,7 +15,6 @@ import com.sky.mapper.OrderDetailMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.result.PageResult;
-import com.sky.service.AddressBookService;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
@@ -173,5 +172,23 @@ public class OrderServiceImpl implements OrderService {
         orders.setCancelReason("用户取消");
         orders.setCancelTime(LocalDateTime.now());
         orderMapper.update(orders);
+    }
+
+    @Override
+    public void repetition(String id) {
+        Long userId = BaseContext.getCurrentId();
+
+        List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(Long.valueOf(id));
+        List<ShoppingCart> shoppingCartList = new ArrayList<>();
+        for (OrderDetail x : orderDetailList) {
+            ShoppingCart shoppingCart = new ShoppingCart();
+
+            BeanUtils.copyProperties(x, shoppingCart, "id");
+            shoppingCart.setUserId(userId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+
+            shoppingCartList.add(shoppingCart);
+        }
+        shoppingCartMapper.insertBatch(shoppingCartList);
     }
 }

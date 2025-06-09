@@ -14,4 +14,6 @@ public interface OrderService {
     OrderVO getOrderDetail(String id);
 
     void cancelOrder(String id);
+
+    void repetition(String id);
 }
