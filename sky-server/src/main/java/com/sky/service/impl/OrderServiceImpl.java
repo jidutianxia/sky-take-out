@@ -2,10 +2,10 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.xiaoymin.knife4j.core.util.CollectionUtils;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.OrdersPageQueryDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.entity.*;
 import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.OrderBusinessException;
@@ -16,6 +16,7 @@ import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -74,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
 
         for (ShoppingCart cart : shoppingCartList) {
             OrderDetail orderDetail = new OrderDetail();
-            BeanUtils.copyProperties(cart,orderDetail);
+            BeanUtils.copyProperties(cart, orderDetail);
             orderDetail.setOrderId(orders.getId());
 
             orderDetailList.add(orderDetail);
@@ -98,13 +100,13 @@ public class OrderServiceImpl implements OrderService {
         int page = ordersPageQueryDTO.getPage();
         int pageSize = ordersPageQueryDTO.getPageSize();
 
-        PageHelper.startPage(page,pageSize);
+        PageHelper.startPage(page, pageSize);
 
         Long userId = BaseContext.getCurrentId();
         ordersPageQueryDTO.setUserId(userId);
 
         Page<Orders> ordersPage = orderMapper.getHistoryOrders(ordersPageQueryDTO);
-        List<OrderVO> list =new ArrayList<>();
+        List<OrderVO> list = new ArrayList<>();
 
         if (ordersPage != null && ordersPage.getTotal() > 0) {
             for (Orders orders : ordersPage) {
@@ -144,7 +146,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void cancelOrder(String id) {
         Orders ordersDB = orderMapper.getById(id);
-        if(ordersDB == null){
+        if (ordersDB == null) {
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
 
@@ -190,5 +192,171 @@ public class OrderServiceImpl implements OrderService {
             shoppingCartList.add(shoppingCart);
         }
         shoppingCartMapper.insertBatch(shoppingCartList);
+    }
+
+    @Override
+    public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+
+        Page<Orders> page = orderMapper.getHistoryOrders(ordersPageQueryDTO);
+
+        List<OrderVO> orderVOList = getOrderVOList(page);
+
+        return new PageResult(page.getTotal(), orderVOList);
+
+    }
+
+
+    private List<OrderVO> getOrderVOList(Page<Orders> page) {
+        List<OrderVO> orderVOList = new ArrayList<>();
+
+        List<Orders> ordersList = page.getResult();
+        if (!CollectionUtils.isEmpty(ordersList)) {
+            for (Orders orders : ordersList) {
+                // 将共同字段复制到OrderVO
+                OrderVO orderVO = new OrderVO();
+                BeanUtils.copyProperties(orders, orderVO);
+                String orderDishes = getOrderDishesStr(orders);
+
+                // 将订单菜品信息封装到orderVO中，并添加到orderVOList
+                orderVO.setOrderDishes(orderDishes);
+                orderVOList.add(orderVO);
+            }
+        }
+        return orderVOList;
+
+    }
+
+    private String getOrderDishesStr(Orders orders) {
+        List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orders.getId());
+
+        // 将每一条订单菜品信息拼接为字符串（格式：宫保鸡丁*3；）
+        List<String> orderDishList = orderDetailList.stream().map(x -> {
+            String orderDish = x.getName() + "*" + x.getNumber() + ";";
+            return orderDish;
+        }).collect(Collectors.toList());
+
+        // 将该订单对应的所有菜品信息拼接在一起
+        return String.join("", orderDishList);
+    }
+
+
+    public OrderStatisticsVO statistics() {
+        Integer toBeConfirmed = orderMapper.countStatus(Orders.TO_BE_CONFIRMED);
+        Integer confirmed = orderMapper.countStatus(Orders.CONFIRMED);
+        Integer deliveryInProgress = orderMapper.countStatus(Orders.DELIVERY_IN_PROGRESS);
+
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        orderStatisticsVO.setToBeConfirmed(toBeConfirmed);
+        orderStatisticsVO.setConfirmed(confirmed);
+        orderStatisticsVO.setDeliveryInProgress(deliveryInProgress);
+
+        return orderStatisticsVO;
+    }
+
+    @Override
+    public void confirm(OrdersConfirmDTO ordersConfirmDTO) {
+        Orders orders = Orders.builder()
+                .id(ordersConfirmDTO.getId())
+                .status(Orders.CONFIRMED)
+                .build();
+
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void rejection(OrdersRejectionDTO ordersRejectionDTO) {
+        Orders ordersDB = orderMapper.getById(String.valueOf(ordersRejectionDTO.getId()));
+
+        if(ordersDB == null || !ordersDB.getStatus().equals(Orders.TO_BE_CONFIRMED)){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+//TODO wechat
+
+//        //支付状态
+//        Integer payStatus = ordersDB.getPayStatus();
+//        if (payStatus == Orders.PAID) {
+//            //用户已支付，需要退款
+//            String refund = weChatPayUtil.refund(
+//                    ordersDB.getNumber(),
+//                    ordersDB.getNumber(),
+//                    new BigDecimal(0.01),
+//                    new BigDecimal(0.01));
+//            log.info("申请退款：{}", refund);
+//        }
+
+
+        Orders orders = Orders.builder()
+                .id(ordersRejectionDTO.getId())
+                .rejectionReason(ordersRejectionDTO.getRejectionReason())
+                .status(Orders.CANCELLED)
+                .cancelTime(LocalDateTime.now())
+                .build();
+
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void cancel(OrdersCancelDTO ordersCancelDTO) throws Exception {
+        Orders ordersDB = orderMapper.getById(String.valueOf(ordersCancelDTO.getId()));
+
+        //TODO wx
+
+//        //支付状态
+//        Integer payStatus = ordersDB.getPayStatus();
+//        if (payStatus == 1) {
+//            //用户已支付，需要退款
+//            String refund = weChatPayUtil.refund(
+//                    ordersDB.getNumber(),
+//                    ordersDB.getNumber(),
+//                    new BigDecimal(0.01),
+//                    new BigDecimal(0.01));
+//            log.info("申请退款：{}", refund);
+//        }
+
+        Orders orders = Orders.builder()
+                .id(ordersCancelDTO.getId())
+                .status(Orders.CANCELLED)
+                .cancelReason(ordersCancelDTO.getCancelReason())
+                .cancelTime(LocalDateTime.now())
+                .build();
+
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void delivery(Long id) {
+        // 根据id查询订单
+        Orders ordersDB = orderMapper.getById(String.valueOf(id));
+
+        if (ordersDB == null || !ordersDB.getStatus().equals(Orders.CONFIRMED)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders orders = Orders.builder()
+                .id(ordersDB.getId())
+                .status(Orders.DELIVERY_IN_PROGRESS)
+                .build();
+
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void complete(Long id) {
+        Orders ordersDB = orderMapper.getById(String.valueOf(id));
+
+        // 校验订单是否存在，并且状态为4
+        if (ordersDB == null || !ordersDB.getStatus().equals(Orders.DELIVERY_IN_PROGRESS)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders orders = Orders.builder()
+                .id(ordersDB.getId())
+                .status(Orders.COMPLETED)
+                .deliveryTime(LocalDateTime.now())
+                .build();
+
+        orderMapper.update(orders);
     }
 }

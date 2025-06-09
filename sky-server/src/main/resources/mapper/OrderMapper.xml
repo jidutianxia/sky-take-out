@@ -44,6 +44,7 @@
             status = #{status},
             cancel_reason = #{cancelReason},
             cancel_time = NOW(),
+            rejection_reason= #{rejectionReason}
         </set>
         <where>
             <if test="id != null and id != ''">
