@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.xiaoymin.knife4j.core.util.CollectionUtils;
@@ -19,6 +20,7 @@ import com.sky.service.OrderService;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +43,8 @@ public class OrderServiceImpl implements OrderService {
     private AddressBookMapper addressBookMapper;
     @Autowired
     private ShoppingCartMapper shoppingCartMapper;
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     @Override
     @Transactional
@@ -58,8 +64,8 @@ public class OrderServiceImpl implements OrderService {
         }
         Orders orders = Orders.builder()
                 .orderTime(LocalDateTime.now())
-                .payStatus(Orders.UN_PAID)
-                .status(Orders.PENDING_PAYMENT)
+                .payStatus(Orders.PAID) // TODO wx 下单直接修改为已支付
+                .status(Orders.TO_BE_CONFIRMED)  // 直接设置为待接单
                 .number(String.valueOf(System.currentTimeMillis()))
                 .phone(addressBook.getPhone())
                 .consignee(addressBook.getConsignee())
@@ -85,6 +91,19 @@ public class OrderServiceImpl implements OrderService {
         orderDetailMapper.inserBatch(orderDetailList);
 
         shoppingCartMapper.deleteByUserId(userId);
+
+
+        // 通过websocket向客户端浏览器推送消息 type orderId content
+        Map map = new HashMap();
+        map.put("type",1); // 1表示来单提醒 2表示客户催单
+        map.put("orderId",orders.getId());
+        map.put("content","订单号:"+ orders.getNumber());
+
+
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+
+
 
         OrderSubmitVO orderSubmitVO = OrderSubmitVO.builder()
                 .id(orders.getId())
