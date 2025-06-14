@@ -5,9 +5,7 @@ import com.sky.entity.Dish;
 import com.sky.entity.User;
 import com.sky.result.Result;
 import com.sky.service.ReportService;
-import com.sky.vo.DishVO;
-import com.sky.vo.TurnoverReportVO;
-import com.sky.vo.UserReportVO;
+import com.sky.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +31,8 @@ public class ReportController {
     private RedisTemplate redisTemplate;
     public static final String TURNOVERKEY = "TURNOVERREPORT";
     public static final String USERKEY = "USERREPORT";
+    public static final String ORDERSKEY = "ORDERSPORT";
+    public static final String TOP10 = "TOP10PORT";
 
     @GetMapping("/turnoverStatistics")
     @ApiOperation("营业额统计接口")
@@ -76,5 +76,49 @@ public class ReportController {
         userReportVO = reportService.getUserStatistics(begin, end);
         redisTemplate.opsForValue().set(key, userReportVO, 18, TimeUnit.HOURS);
         return Result.success(userReportVO);
+    }
+
+    @GetMapping("/ordersStatistics")
+    @ApiOperation("订单统计接口")
+    public Result<OrderReportVO> ordersStatistics(
+            @DateTimeFormat(pattern = "yyyy-MM-dd")
+            LocalDate begin,
+            @DateTimeFormat(pattern = "yyyy-MM-dd")
+            LocalDate end) {
+        log.info("订单数据统计,参数为:{},{}", begin, end);
+
+        String key = ORDERSKEY + "begin" + begin.toString() + "end" + end.toString();
+        log.info("订单数据统计redis，key:{}", key);
+
+        OrderReportVO orderReportVO = (OrderReportVO) redisTemplate.opsForValue().get(key);
+        if (orderReportVO != null) {
+            return Result.success(orderReportVO);
+        }
+        orderReportVO = reportService.getOrdersStatistics(begin, end);
+        redisTemplate.opsForValue().set(key, orderReportVO, 18, TimeUnit.HOURS);
+        return Result.success(orderReportVO);
+    }
+
+
+    @GetMapping("/top10")
+    @ApiOperation("查询销量排名top10接口")
+    public Result<SalesTop10ReportVO> top10(
+            @DateTimeFormat(pattern = "yyyy-MM-dd")
+            LocalDate begin,
+            @DateTimeFormat(pattern = "yyyy-MM-dd")
+            LocalDate end) {
+        log.info("查询销量排名top10接口,参数为:{},{}", begin, end);
+
+        String key = TOP10 + "begin" + begin.toString() + "end" + end.toString();
+        log.info("查询销量排名top10接口redis，key:{}", key);
+
+
+        SalesTop10ReportVO salesTop10ReportVO = (SalesTop10ReportVO)redisTemplate.opsForValue().get(key);
+        if (salesTop10ReportVO != null) {
+            return Result.success(salesTop10ReportVO);
+        }
+        salesTop10ReportVO = reportService.getTop10(begin, end);
+        redisTemplate.opsForValue().set(key, salesTop10ReportVO, 18, TimeUnit.HOURS);
+        return Result.success(salesTop10ReportVO);
     }
 }
