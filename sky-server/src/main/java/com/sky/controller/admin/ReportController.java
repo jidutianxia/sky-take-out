@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -120,5 +121,12 @@ public class ReportController {
         salesTop10ReportVO = reportService.getTop10(begin, end);
         redisTemplate.opsForValue().set(key, salesTop10ReportVO, 18, TimeUnit.HOURS);
         return Result.success(salesTop10ReportVO);
+    }
+
+    @GetMapping("export")
+    @ApiOperation("导出运营数据报表")
+    public void export(HttpServletResponse response){
+        reportService.exportBusinessData(response);
+
     }
 }
